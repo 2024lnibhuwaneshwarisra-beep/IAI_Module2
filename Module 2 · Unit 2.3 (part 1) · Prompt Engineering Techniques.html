@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Module 2 · Unit 2.3 (part 1) · Prompt Engineering Techniques</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5ef;--grid:#d5e0d3;--sf:#fff;--ink:#16212b;--mute:#4c5b66;--blue:#1f5fd6;--hi:#ffd84d;--ok:#1f8f5a;--bad:#d23b41;--okbg:#dff3e7;--badbg:#fbe0e1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10171d;--grid:#1c2830;--sf:#18222a;--ink:#eaf0f3;--mute:#9fb0ba;--blue:#7fb0ff;--ok:#52d196;--bad:#ff7b80;--okbg:#14382a;--badbg:#44191c}}
+:root[data-theme="dark"]{--bg:#10171d;--grid:#1c2830;--sf:#18222a;--ink:#eaf0f3;--mute:#9fb0ba;--blue:#7fb0ff;--ok:#52d196;--bad:#ff7b80;--okbg:#14382a;--badbg:#44191c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:18px 16px 60px}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+h1{font-size:clamp(2rem,6.5vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.45rem;font-weight:800}h3{font-size:1.1rem}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.nav span,.nav a{border:2px solid var(--ink);padding:2px 10px;font-weight:700;font-size:.9rem;background:var(--sf);color:var(--ink);text-decoration:none}
+.nav .on{background:var(--hi);color:#16212b}.nav .off{opacity:.45}
+.sub{color:var(--mute);max-width:64ch;margin:6px 0}
+section{background:var(--sf);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:18px;margin-top:26px}
+.tag{font-weight:700;color:var(--blue);font-size:.9rem}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+details{border:2px solid var(--ink);background:var(--bg);margin:8px 0;padding:8px 12px}
+summary{cursor:pointer;font-weight:700}details p{margin:6px 0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0;font-weight:700}
+.flow span{border:2px solid var(--ink);background:var(--hi);color:#16212b;padding:3px 10px}
+.q{font-weight:700;margin:12px 0 4px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.opt{border:2px solid var(--ink);background:var(--sf);padding:8px 14px;font-weight:700;text-align:left}
+.opt:hover:not(:disabled){background:var(--hi);color:#16212b}
+.opt.right{background:var(--okbg);border-color:var(--ok)}.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.fb{font-weight:700;min-height:1.4em}
+label{display:block;font-weight:700;font-size:.88rem;color:var(--mute);margin:8px 0 2px}
+textarea,.lock{width:100%;font:inherit;font-family:ui-monospace,Menlo,monospace;font-size:.88rem;padding:8px;border:2px solid var(--ink);background:var(--bg);color:var(--ink)}
+textarea{min-height:110px;resize:vertical}.lock{border-style:dashed;white-space:pre-wrap}
+.run{margin-top:10px;border:2px solid var(--ink);background:var(--hi);color:#16212b;font-weight:700;padding:8px 18px;box-shadow:3px 3px 0 var(--ink)}
+.run:disabled{opacity:.6;cursor:wait}
+.hint{margin-left:8px;border:2px solid var(--ink);background:var(--sf);padding:6px 12px}
+.lab{border:2px solid var(--ink);padding:14px;margin-top:14px;background:var(--bg)}.lab.pass{border-color:var(--ok)}
+.trio{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.resp{margin-top:8px;padding:8px 10px;border:2px dashed var(--ink);white-space:pre-wrap;font-size:.9rem;min-height:2.6em;background:var(--sf)}
+.resp.ok{background:var(--okbg);border:2px solid var(--ok)}.resp.no{background:var(--badbg);border:2px solid var(--bad)}
+.pill{background:var(--hi);color:#16212b;border:2px solid var(--ink);padding:1px 10px;font-weight:700;font-size:.85rem}
+.score{margin-top:10px;font-weight:700}
+</style>
+</head>
+<body>
+<main>
+<div class="nav"><a href="https://claude.ai/artifact/LGX9drvPQgqT1AaHNYTzGH" target="_blank" rel="noopener">2.1 Intro</a><a href="https://claude.ai/artifact/RkHjfbkyAqtX4xR1nMiVy9" target="_blank" rel="noopener">2.2 Communication</a><span class="on">2.3 Techniques (1 of 2)</span><span class="off">2.3 (2 of 2)</span><span class="off">2.4 Creative</span><span class="off">2.5 Writing</span></div>
+<h1>Unit 2.3 (part 1): Prompt Engineering Techniques</h1>
+<p class="sub">Module 2 · 2 lecture hours across two pages · Part 1: the techniques overview, the instructions prompt, and zero-, one- and few-shot prompting. Part 2 covers self-consistency and the prompt gallery.</p>
+<div id="theory"></div>
+<section><div class="tag">Apply it · Scenarios</div><h2>Six application questions</h2><p class="sub">Pick the best technique for each situation, then read why.</p><div id="quiz"></div><div class="score" id="qs"></div></section>
+<section><div class="tag">Apply it · Live on Claude</div><h2>Three labs</h2>
+<p class="sub">Run prompts on Claude and see the techniques at work. <span class="pill">Model: Claude Haiku (same for the class)</span> Replies vary a little, so run again if you narrowly miss.</p>
+<div id="labbox"></div><div class="score" id="ls"></div></section>
+</main>
+<script>
+const MODEL="claude-haiku-5-5";
+const $=id=>document.getElementById(id);
+const liveErr=e=>{try{console.error(e)}catch(_){}const c=e&&e.code;const m={not_granted:'Claude was not allowed. Reload this page and click Allow when the permission box appears.',rate_limited:'Too many runs. Wait a moment, then try again.',not_declared:'This page is not set up for live Claude. Tell your teacher.',capability_disabled:'Live Claude is switched off for this page. Tell your teacher.',capability_removed:'Live Claude was removed from this page. Tell your teacher.',sampling_disabled:'Live Claude is turned off for your account or organisation.',session_expired:'Your session expired. Reload the page.',upstream_error:'Claude is busy. Try again in a moment.',empty_completion:'Claude sent an empty reply. Run it again.',refused:'Claude declined this prompt. Change the wording.',queue_overflow:'Too many requests are waiting. Try again shortly.',cancelled:'Stopped.',invalid_request:'The request was not accepted. Tell your teacher.'}[c];return (m||"Couldn't reach Claude. Try again.")+(c?' (code: '+c+')':(e&&e.message?' ('+String(e.message).slice(0,80)+')':''));};
+/* live Claude when available, otherwise paste mode (works in any phone browser) */
+const HARD=['not_granted','sampling_disabled','capability_disabled','capability_removed','not_declared'];
+let liveFn=null,liveDone=false,pasteOnly=false;
+(async()=>{try{if(typeof claude!=='undefined'&&claude&&claude.use)liveFn=await claude.use("sample");}catch(e){liveFn=null;}liveDone=true;})();
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const pasteQ=[];let pasteBusy=false;
+function pasteAsk(p,o){return new Promise((res,rej)=>{pasteQ.push({p,o,res,rej});pump();});}
+function pump(){if(pasteBusy||!pasteQ.length)return;pasteBusy=true;const {p,o,res,rej}=pasteQ.shift();
+const ov=document.createElement('div');ov.setAttribute('role','dialog');ov.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.55);display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:12px';
+const bx=document.createElement('div');bx.style.cssText='background:var(--sf,var(--surface,#fff));color:var(--ink,#16212b);border:2px solid var(--ink,#16212b);box-shadow:5px 5px 0 var(--ink,#16212b);max-width:660px;width:100%;padding:16px;margin:8px 0';
+const mkb=(t,bg)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='font:inherit;cursor:pointer;border:2px solid var(--ink,#16212b);padding:7px 14px;font-weight:700;margin:8px 8px 0 0;background:'+bg+';color:#16212b';return b;};
+const ta=()=>{const t=document.createElement('textarea');t.style.cssText='width:100%;min-height:120px;font:14px ui-monospace,Menlo,monospace;padding:8px;border:2px solid var(--ink,#16212b);background:var(--bg,#f2f5ef);color:var(--ink,#16212b)';return t;};
+const h=document.createElement('div');h.style.cssText='font-weight:800;font-size:1.15rem;margin-bottom:6px';h.textContent='Run this in your own Claude chat';
+const ex=document.createElement('p');ex.style.margin='0 0 8px';ex.textContent="Live Claude isn't available in this view. 1) Copy the prompt. 2) Open Claude (use Haiku if you can choose), paste it and send. 3) Paste Claude's reply below.";
+const pt=ta();pt.readOnly=true;pt.value=p;const cp=mkb('Copy prompt','#ffd84d');
+cp.onclick=async()=>{try{await navigator.clipboard.writeText(p);cp.textContent='Copied ✓';}catch(e){pt.focus();pt.select();cp.textContent='Press copy on your keyboard';}};
+const l2=document.createElement('div');l2.style.cssText='font-weight:700;margin-top:10px';l2.textContent="Claude's reply";
+const rt=ta();const ok=mkb('Use this reply','#ffd84d');const no=mkb('Cancel','transparent');const em=document.createElement('div');em.style.cssText='font-weight:700;min-height:1.2em';
+const done=()=>{ov.remove();pasteBusy=false;};
+ok.onclick=()=>{const t=rt.value.trim();if(!t){em.textContent='Paste the reply first.';return;}done();try{o&&o.onText&&o.onText({text:t,delta:t});}catch(e){}res({text:t,truncated:false});pump();};
+no.onclick=()=>{done();const q=pasteQ.splice(0);rej({code:'cancelled',message:'cancelled'});q.forEach(x=>x.rej({code:'cancelled',message:'cancelled'}));};
+bx.append(h,ex,pt,cp,l2,rt,em,ok,no);ov.appendChild(bx);document.body.appendChild(ov);setTimeout(()=>{try{rt.focus();}catch(e){}},50);}
+async function getSample(){return async(p,o)=>{
+ if(!liveDone)await Promise.race([(async()=>{while(!liveDone)await wait(100);})(),wait(8000)]);
+ if(liveFn&&!pasteOnly){try{return await liveFn(p,o);}catch(e){if(HARD.includes(e&&e.code))pasteOnly=true;else throw e;}}
+ return pasteAsk(p,o);};}
+const TH=[
+{h:"Theory 1 · Prompt engineering techniques: an overview",s:"Techniques are the methods used to guide what a language model produces. They can be combined. Open each part.",flow:["Standard prompt","Role prompting","Seed-word prompting","Instructions prompt","Zero / one / few shot"],p:[
+["Introduction",[["","Prompt engineering techniques are the methods used to guide the output of language models such as ChatGPT or Claude. Each technique shapes how the model generates text. Used well, they help the model produce relevant, accurate and high-quality responses across many tasks and domains, and they can be mixed to suit the task."]]],
+["Standard prompts",[["Explain","A plain instruction or question with no special technique added. It is the baseline that other techniques improve on. (The textbook names it without detail; this is the common meaning.)"],["Example","“Explain what a diode does.”"]]],
+["Role prompting",[["Explain","The model is told to adopt a role or perspective, such as a tech expert, so its tone, focus and content change."],["Example","“You are a tech reviewer. Explain what a diode does.”"],["Class link","Tutorial Ch. 3, roles."]]],
+["Seed-word prompting",[["Explain","The prompt supplies key words or topics that the answer should focus on, for example the specific features of a smartphone."],["Example","“Review this phone. Focus on: battery, camera, display.”"]]],
+["Choosing and combining",[["Explain","No single technique is best everywhere. The right choice depends on the task, and several techniques are often combined, then tested and refined. The next two topics explain the instructions prompt and shot prompting."]]]]},
+{h:"Theory 2 · The instructions prompt technique",s:"Give the model specific instructions to follow, so the text matches the objectives and requirements of the task.",flow:["State the rule","Model follows it","Output meets the requirement"],p:[
+["Introduction",[["","The instructions prompt technique guides a language model by giving it specific instructions to follow. This makes the generated text line up with the objectives and requirements of the task."]]],
+["Example 1: customer service",[["Instruction","“Responses should be professional and provide accurate information.”"],["Effect","The model is steered toward replies that meet the criteria of professionalism and accuracy."]]],
+["Example 2: a legal document",[["Instruction","“The document should comply with relevant laws and regulations.”"],["Effect","The instruction makes the draft follow legal standards and requirements."]]],
+["Combining with other techniques",[["Explain","Instructions can be combined with other methods for more precision and control. For a smartphone review, the instruction “the review should be unbiased and informative” can be joined with role prompting (the perspective of a tech expert) and seed-word prompting (specific features). Together they give a comprehensive, insightful review."],["Class link","Tutorial Ch. 2, clear and direct, and Ch. 9, where rules like “if unsure, say…” are written as instructions. Lab 3 below."]]],
+["Conclusion",[["","The instructions prompt is the simplest way to control behaviour: say what the output must be like. It works best when the instructions are specific, and it becomes stronger when combined with a role and focus words."]]]]},
+{h:"Theory 3 · Zero-, one- and few-shot prompting",s:"“Shots” are the examples you give. More context usually means more accurate answers.",flow:["Zero shot: no example","One shot: one example","Few shot: a few examples"],p:[
+["Introduction",[["","Zero-, one- and few-shot prompting give a model varying amounts of context when it answers. The “shot” count is the number of examples in the prompt. The approach is useful when the model must respond from limited examples or context."]]],
+["Zero-shot prompting",[["Explain","The user gives only an instruction, with no examples. The model relies on what it already knows."],["Example","“Write a poem about nature.”"],["Good for","Open-ended, creative tasks and seeing how well the model generalises."],["Limitation","Answers can be less accurate or relevant than when examples are given."]]],
+["One-shot prompting",[["Explain","The user supplies a single example, and the model uses it to produce its response. The textbook's example is giving one sentence from a paragraph when asking for a summary."],["Good for","Cases where only one example or little context is available."],["Limitation","Its success depends on the task's complexity and the quality of the example. A harder task may need more."]]],
+["Few-shot prompting",[["Explain","The user supplies a small number of examples, and the model uses them to respond. The textbook's example is giving a few sentences about a smartphone's features before asking for a review."],["Good for","More accurate and relevant answers than zero or one shot, because the model sees more of the task's nuances."],["Limitation","It still depends on the quality and relevance of the examples, which must be representative. You may need to experiment with how many to use and what kind."]]],
+["In practice (tutorial)",[["Explain","In the tutorial, few-shot means writing input and output pairs in the exact format you want, then ending with the new input. Include the trickier cases, because examples teach the format and the answer."],["Example","Q: How much does a Mixmaster4000 cost? A: A  |  Q: My mixer will not turn on. A: B  |  Q: {new email} A:"],["Class link","Tutorial Ch. 7, Ex 7.1. Lab 1 and Lab 2 below."]]],
+["Conclusion",[["","Choose the number of shots by the task: zero for open-ended work, one when examples are scarce, and few for accuracy and format control. In every case, good examples matter more than many examples."]]]]}];
+TH.forEach((t,ti)=>{const s=document.createElement('section');const tg=document.createElement('div');tg.className='tag';tg.textContent=t.h.split(' · ')[0];
+const h=document.createElement('h2');h.textContent=t.h.split(' · ')[1];const sb=document.createElement('p');sb.className='sub';sb.textContent=t.s;s.append(tg,h,sb);
+const fl=document.createElement('div');fl.className='flow';t.flow.forEach((f,i)=>{if(i)fl.append('→');const sp=document.createElement('span');sp.textContent=f;fl.appendChild(sp);});s.appendChild(fl);
+t.p.forEach(([sm,rows],i)=>{const d=document.createElement('details');if(i===0&&ti===0)d.open=true;const su=document.createElement('summary');su.textContent=sm;d.appendChild(su);
+rows.forEach(([l,x])=>{const p=document.createElement('p');if(l){const b=document.createElement('b');b.textContent=l+': ';p.appendChild(b);}p.append(x);d.appendChild(p);});s.appendChild(d);});
+$('theory').appendChild(s);});
+/* scenarios */
+const QZ=[
+["A support chatbot must always sound professional and give accurate information. Which technique states this most directly?",["Zero-shot prompting","Instructions prompt","Seed-word prompting","Self-consistency"],1,"The instructions prompt tells the model what the output must be like."],
+["A student asks for “a poem about nature” and gives no examples or context. Which technique is this, and what is the trade-off?",["Few-shot, more accurate","Zero-shot, flexible but sometimes less accurate","One-shot, always accurate","Role prompting, always creative"],1,"No examples means zero-shot. It is open-ended but can be less accurate or relevant."],
+["A team wants a smartphone review that is unbiased, written like a tech expert, and focused on battery and camera. Which combination fits?",["Zero-shot only","Few-shot only","Instructions + role prompting + seed-word prompting","One-shot only"],2,"Instructions set the rules, the role sets the perspective, and seed words set the focus."],
+["A classifier keeps giving answers in inconsistent formats. Which fix is most effective?",["Remove all instructions","Add few-shot examples that show the exact format","Make the prompt shorter","Use zero-shot"],1,"Examples that show the exact output format teach the pattern."],
+["You have only one sample support ticket with its correct label. Which technique can you use now, and what is the risk?",["One-shot, but a hard task may need more examples","Few-shot, with no risk","Zero-shot, with no risk","Seed-word, with no risk"],0,"One example is one-shot. Success depends on the task and the example's quality."],
+["Your few-shot examples are all easy cases, but real emails are tricky. What should you change?",["Add examples of the trickier cases","Delete the examples","Make the examples longer","Switch to zero-shot"],0,"Examples must be representative, so include the tricky categories."]];
+let qd=0,qc=0;
+QZ.forEach(([q,o,a,e])=>{const d=document.createElement('div');const h=document.createElement('div');h.className='q';h.textContent=q;
+const w=document.createElement('div');w.className='opts';const f=document.createElement('div');f.className='fb';let dn=false;
+o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{if(dn)return;dn=true;qd++;
+if(i===a){qc++;b.classList.add('right');f.textContent='✓ '+e;}else{b.classList.add('wrong');w.children[a].classList.add('right');f.textContent='✗ '+e;}
+$('qs').textContent=`Answered ${qd} of ${QZ.length}. Correct: ${qc}.`+(qd===QZ.length?` Score: ${Math.round(qc/QZ.length*100)}%.`:'');};w.appendChild(b);});
+d.append(h,w,f);$('quiz').appendChild(d);});
+/* labs */
+const CATS="(A) Pre-sale question\n(B) Broken or defective item\n(C) Billing question\n(D) Other (please explain)";
+const EM=["Hi -- My Mixmaster4000 is producing a strange noise when I operate it. It also smells a bit smoky and plasticky, like burning electronics.  I need a replacement.","Can I use my Mixmaster 4000 to mix paint, or is it only meant for mixing food?","I HAVE BEEN WAITING 4 MONTHS FOR MY MONTHLY CHARGES TO END AFTER CANCELLING!!  WTF IS GOING ON???","How did I get here I am not good with computer.  Halp."];
+const EXP=["B","AD","C","D"];
+const MAIL=EM[1];
+const ZERO="Classify this email into one category. Reply with only the letter.\n\n"+CATS+"\n\nEmail: "+MAIL;
+const ONE="Classify this email into one category. Reply with only the letter.\n\n"+CATS+"\n\nExample:\nEmail: My blender will not turn on.\nAnswer: B\n\nEmail: "+MAIL+"\nAnswer:";
+const FEW="Classify this email into one category. Reply with only the letter.\n\n"+CATS+"\n\nExamples:\nEmail: How much does a Mixmaster4000 cost?\nAnswer: A\n\nEmail: My blender will not turn on.\nAnswer: B\n\nEmail: Why was I charged twice this month?\nAnswer: C\n\nEmail: Please remove me from your mailing list.\nAnswer: D\n\nEmail: "+MAIL+"\nAnswer:";
+let sample=null,ldone=new Set();
+async function ensure(){if(!sample)sample=await getSample();return sample;}
+async function call(p,box){const r=await sample(p,{model:MODEL,modelTier:"quick",cache:false,onText:({text})=>{box.textContent=text;}});box.textContent=r.text;return r.text;}
+const err=e=>liveErr(e);
+const NOLIVE='Live Claude is not available here. Open this page from its claude.ai link while signed in.';
+function mk(L){const d=document.createElement('div');d.className='lab';const h=document.createElement('h3');h.textContent=L.t;const p=document.createElement('p');p.className='sub';p.textContent=L.task;d.append(h,p);return d;}
+/* lab 1: trio */
+(function(){const d=mk({t:"Lab 1: Zero vs one vs few shot",task:"Same email (“Can I use my Mixmaster 4000 to mix paint…?”), three prompts. Edit them if you like, run all three, and compare. A reply ends with just a letter when the format is right."});
+const g=document.createElement('div');g.className='trio';const T=[],R=[];
+[["Zero-shot",ZERO],["One-shot",ONE],["Few-shot",FEW]].forEach(([n,v])=>{const c=document.createElement('div');const l=document.createElement('label');l.textContent=n;const t=document.createElement('textarea');t.value=v;const r=document.createElement('div');r.className='resp';c.append(l,t,r);g.appendChild(c);T.push(t);R.push(r);});
+const run=document.createElement('button');run.className='run';run.textContent='Run all three';const m=document.createElement('div');m.className='fb';m.setAttribute('role','status');d.append(g,run,m);
+run.onclick=async()=>{run.disabled=true;m.textContent='Claude is thinking…';R.forEach(r=>{r.className='resp';r.textContent='';});
+try{if(!await ensure()){m.textContent=NOLIVE;return;}
+const out=await Promise.all(T.map((t,i)=>call(t.value,R[i])));
+out.forEach((t,i)=>{R[i].className='resp '+(/^[A-D]$/.test(t.trim().slice(-1))&&t.trim().length<=3?'ok':'no');});
+m.textContent='Green = reply is only a letter. Did more examples change the format or the answer? Discuss.';}
+catch(e){m.textContent=err(e);}finally{run.disabled=false;}};
+$('labbox').appendChild(d);})();
+/* labs 2 and 3 */
+const LABS=[
+{t:"Lab 2: Few-shot classifier (Tutorial Ex 7.1)",task:"Edit the template so every reply ENDS with only the category letter, for all four emails. Include the categories and at least two examples, and keep {{EMAIL}}.",hint:"Write example emails with answers in the exact format you want, include the trickier categories, and keep {{EMAIL}} at the end. Email 2 may be A or D.",u:"Please classify this email as either green or blue: {{EMAIL}}",inp:EM.map(e=>({EMAIL:e})),
+ need:u=>u.includes("{{EMAIL}}")?"":"Keep {{EMAIL}} in the template.",ok:R=>R.every((t,i)=>EXP[i].includes(t.trim().slice(-1)))},
+{t:"Lab 3: Combine three techniques",task:"Write one prompt that gives Claude an instruction (the review must be unbiased and informative), a role (a tech expert), and focus words (battery and camera) to review a new smartphone.",hint:"Use the words “unbiased” and “informative”, start with “You are…”, and name battery and camera.",u:"",
+ ok:(R,u)=>/unbiased/i.test(u)&&/informative/i.test(u)&&/you are|act as/i.test(u)&&/battery/i.test(R[0])&&/camera/i.test(R[0])&&R[0].trim().split(/\s+/).length>=40}];
+LABS.forEach((L,i)=>{const d=mk(L);d.classList.add('l2');
+const lb=document.createElement('label');lb.textContent=L.inp?'Prompt template (edit this)':'Your prompt (edit this)';const ta=document.createElement('textarea');ta.value=L.u;d.append(lb,ta);
+const bw=document.createElement('div');const run=document.createElement('button');run.className='run';run.textContent='Run on Claude';const hb=document.createElement('button');hb.className='hint';hb.textContent='Hint';bw.append(run,hb);d.appendChild(bw);
+const msg=document.createElement('div');msg.className='fb';msg.setAttribute('role','status');const out=document.createElement('div');d.append(msg,out);
+hb.onclick=()=>{msg.textContent='Hint: '+L.hint;};
+run.onclick=async()=>{const u=ta.value.trim();if(!u){msg.textContent='Fill in the box first.';return;}const bad=L.need?L.need(u):'';if(bad){msg.textContent=bad;return;}
+run.disabled=true;out.innerHTML='';msg.textContent='Claude is thinking…';
+try{if(!await ensure()){msg.textContent=NOLIVE;return;}
+const inp=L.inp||[{}],R=[],boxes=[];
+for(let k=0;k<inp.length;k++){const b=document.createElement('div');b.className='resp';out.appendChild(b);boxes.push(b);let p=u;for(const v in inp[k])p=p.split("{{"+v+"}}").join(inp[k][v]);R.push(await call(p,b));}
+const ok=L.ok(R,u);boxes.forEach(b=>b.classList.add(ok?'ok':'no'));msg.textContent=ok?'✓ Passed.':'✗ Not yet. Read the replies and tighten your prompt.';
+if(ok){d.classList.add('pass');ldone.add(i);}$('ls').textContent=`Graded labs passed: ${ldone.size} of ${LABS.length}`;}
+catch(e){msg.textContent=err(e);}finally{run.disabled=false;}};
+$('labbox').appendChild(d);});
+</script>
+</body>
+</html>

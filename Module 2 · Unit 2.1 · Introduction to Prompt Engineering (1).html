@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Module 2 · Unit 2.1 · Introduction to Prompt Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5ef;--grid:#d5e0d3;--sf:#fff;--ink:#16212b;--mute:#4c5b66;--blue:#1f5fd6;--hi:#ffd84d;--ok:#1f8f5a;--bad:#d23b41;--okbg:#dff3e7;--badbg:#fbe0e1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10171d;--grid:#1c2830;--sf:#18222a;--ink:#eaf0f3;--mute:#9fb0ba;--blue:#7fb0ff;--ok:#52d196;--bad:#ff7b80;--okbg:#14382a;--badbg:#44191c}}
+:root[data-theme="dark"]{--bg:#10171d;--grid:#1c2830;--sf:#18222a;--ink:#eaf0f3;--mute:#9fb0ba;--blue:#7fb0ff;--ok:#52d196;--bad:#ff7b80;--okbg:#14382a;--badbg:#44191c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:18px 16px 60px}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+h1{font-size:clamp(2rem,6.5vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.45rem;font-weight:800}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.nav span{border:2px solid var(--ink);padding:2px 10px;font-weight:700;font-size:.9rem;background:var(--sf)}
+.nav .on{background:var(--hi);color:#16212b}.nav .off{opacity:.45}
+.sub{color:var(--mute);max-width:62ch;margin:6px 0}
+.cite{font-size:.8rem;color:var(--blue);font-weight:700}
+section{background:var(--sf);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:18px;margin-top:26px}
+.tag{font-weight:700;color:var(--blue);font-size:.9rem}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:12px}
+.flip{min-height:120px;text-align:left;border:2px solid var(--ink);background:var(--bg);padding:12px}
+.flip b{display:block;font-family:"Bricolage Grotesque",sans-serif}
+.flip.open{background:var(--hi);color:#16212b}
+.tl{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tl button{border:2px solid var(--ink);background:var(--sf);padding:6px 12px;font-weight:700}
+.tl button[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+.panel{border-left:6px solid var(--blue);padding:8px 14px;background:var(--bg);min-height:5.5em}
+.warn{font-size:.88rem;color:var(--bad);font-weight:700;margin-top:4px}
+.q{font-weight:700;margin:8px 0}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.opt{border:2px solid var(--ink);background:var(--sf);padding:8px 14px;font-weight:700}
+.opt:hover:not(:disabled){background:var(--hi);color:#16212b}
+.opt.right{background:var(--okbg);border-color:var(--ok)}
+.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.stack{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+label{display:block;font-weight:700;font-size:.88rem;color:var(--mute);margin:6px 0 2px}
+textarea{width:100%;min-height:90px;font:inherit;font-family:ui-monospace,Menlo,monospace;font-size:.9rem;padding:8px;border:2px solid var(--ink);background:var(--bg);color:var(--ink)}
+.run{margin-top:10px;border:2px solid var(--ink);background:var(--hi);color:#16212b;font-weight:700;padding:8px 18px;box-shadow:3px 3px 0 var(--ink)}
+.run:disabled{opacity:.6;cursor:wait}
+.resp{margin-top:8px;padding:8px 10px;border:2px dashed var(--ink);white-space:pre-wrap;font-size:.92rem;min-height:3em}
+.fb{font-weight:700;min-height:1.5em;margin-top:6px}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0}
+.bar i{display:block;height:18px;background:var(--blue);min-width:2px;transition:width .3s}
+.pill{background:var(--hi);color:#16212b;border:2px solid var(--ink);padding:1px 10px;font-weight:700;font-size:.85rem}
+details{border:2px solid var(--ink);background:var(--bg);margin:8px 0;padding:8px 12px}summary{cursor:pointer;font-weight:700}details p{margin:6px 0}.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0;font-weight:700}.flow span{border:2px solid var(--ink);background:var(--hi);color:#16212b;padding:3px 10px}
+.next{margin-top:26px;border:2px dashed var(--ink);padding:12px;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<div class="nav"><span class="on">2.1 Intro</span><span class="off">2.2 Communication</span><span class="off">2.3 Techniques</span><span class="off">2.4 Creative</span><span class="off">2.5 Writing</span></div>
+<h1>Unit 2.1: Introduction to Prompt Engineering</h1>
+<p class="sub">Module 2 · 2 lecture hours · Topics: what prompt engineering is, how it evolved, types of prompts, and how it works. Concepts follow the prescribed textbook; activities come from Anthropic's tutorial.</p>
+
+<section id="s1">
+<div class="tag">Concept 1</div><h2>What is a prompt, and why engineer it?</h2>
+<p class="sub">Tap a card to flip it.</p>
+<div class="grid" id="cards"></div>
+</section>
+
+<section id="s2">
+<div class="tag">Concept 2</div><h2>A short history of prompting</h2>
+<p class="sub">Pick a milestone.</p>
+<div class="tl" id="tl"></div>
+<div class="panel" id="tlp" aria-live="polite">Choose a milestone above.</div>
+</section>
+
+<section id="s3">
+<div class="tag">Concept 3 · Learn, then quiz</div><h2>The three types of prompts</h2>
+<p class="sub">The book names three types of prompts. Read the three cards, then take the graded quiz.</p>
+<div class="grid">
+<div class="flip"><b>1. Natural-language prompts</b>What it is: instructions written the way people talk, giving the model clues in ordinary language, so you can work with it naturally.<br><i>Looks like:</i> “Explain what a diode does in two sentences.”</div>
+<div class="flip"><b>2. System prompts</b>What it is: ready-made guidelines or templates that a developer supplies to steer the model's output, stating clearly the behaviour or format expected.<br><i>Looks like:</i> “You are a lab assistant. Always answer in bullet points.”<br><i>Tutorial link:</i> the system prompt box in Ch. 1 and Ex 1.2.</div>
+<div class="flip"><b>3. Conditional prompts</b>What it is: prompts that put the model under particular limits or contexts, using statements like “If X, then Y” or “Given A, generate B”.<br><i>Looks like:</i> “If there are more than 3 resistors, show the steps.”<br><i>Tutorial link:</i> the “if you are unsure, say…” rules in Ch. 9 and the “give Claude an out” idea in Ch. 8.</div>
+</div>
+<p class="sub"><b>Memory trick:</b> natural = how you speak. System = standing rules. Conditional = if or given. Real prompts often mix types.</p>
+<div class="tag" style="margin-top:14px">Graded quiz · 6 questions · A 90%+ · B 80%+ · C 70%+ · D 60%+ (examples written for this class)</div>
+<div class="q" id="sq"></div>
+<div class="opts" id="so"></div>
+<div class="fb" id="sf" role="status"></div>
+<button class="run" id="sn" hidden>Next prompt</button>
+</section>
+
+<section id="s4">
+<div class="tag">Concept 4 · Live on Claude</div><h2>How prompt engineering works: weak vs engineered</h2>
+<p class="sub">The book gives five working principles: understand the task, use precise wording, give details, give examples, and experiment. Edit both prompts, run them on Claude, and compare. A full explanation of the five principles follows this activity.</p>
+<div class="stack">
+<div><label for="pa">Prompt A (weak)</label><textarea id="pa">Explain transistors.</textarea><div class="resp" id="ra"></div></div>
+<div><label for="pb">Prompt B (engineered)</label><textarea id="pb">Explain what a transistor does to a first-year engineering student. Use exactly 3 bullet points, each with one real device example. Keep it under 80 words.</textarea><div class="resp" id="rb"></div></div>
+</div>
+<button class="run" id="rn">Run both on Claude</button> <span class="pill">Model: Claude Haiku (same for the class)</span>
+<div class="fb" id="rf" role="status"></div>
+<p class="sub"><b>Discuss:</b> Which of the five principles did Prompt B use? Which one would you add? <span class="cite">Tutorial Ch. 2: "show your prompt to a colleague; if they're confused, Claude is too."</span></p>
+</section>
+
+<section id="s4b">
+<div class="tag">Theory</div><h2>How prompt engineering works: the five principles</h2>
+<p class="sub">Open each part to read a full explanation of how prompt engineering works and its five guiding principles.</p>
+<div class="flow" aria-label="Five principles cycle"><span>1 Understand the task</span>→<span>2 Precise wording</span>→<span>3 Give details</span>→<span>4 Give examples</span>→<span>5 Experiment</span><b>↺ repeat</b></div>
+<p class="sub"><b>Memory trick:</b> <b>U-P-D-E-E</b> = Understand, Precise, Details, Examples, Experiment. Draw this cycle in your notes.</p>
+<details open><summary>Introduction</summary><p>Prompt engineering is the process of designing and refining the instructions (prompts) given to a large language model (LLM) so that it produces the output we want. The process is intricate and recursive: there is no one-size-fits-all method, and the best approach depends on the particular LLM and the task. Engineers therefore follow five broad principles.</p></details>
+<details><summary>Principle 1: Understand the task thoroughly</summary>
+<p><b>Explain:</b> Before writing anything, decide what you expect from the LLM and what kind of result you want: an answer, a summary, code, a table? Only when the assignment is clear can you design a prompt that helps the model reach your objective.</p>
+<p><b>Why it matters:</b> Without a clear goal the model has to guess the task, the audience and the format.</p>
+<p><b>Example:</b> Goal unclear: “Tell me about circuits.” Goal clear (exam revision): “Write revision notes on series and parallel circuits for a first-year exam.”</p>
+<p><b>Class link:</b> Tutorial Ch. 2, clear and direct.</p></details>
+<details><summary>Principle 2: Make your wording precise and succinct</summary>
+<p><b>Explain:</b> Leave no doubt about what you are asking. Use straightforward language, keep it short, and avoid jargon.</p>
+<p><b>Why it matters:</b> The model only has your words, so vague words give vague output.</p>
+<p><b>Example:</b> Vague: “Make it short and good.” Precise: “Summarise in 3 bullet points, under 60 words.”</p>
+<p><b>Class link:</b> Tutorial Ex 2.2, one player only.</p></details>
+<details><summary>Principle 3: Give details</summary>
+<p><b>Explain:</b> The more specific the prompt, the more likely the response is relevant and informative. The textbook's own example: instead of “write a poem”, ask for “a poem about a lost love”.</p>
+<p><b>What details to add:</b> topic, audience, length, format and tone.</p>
+<p><b>Example:</b> “Explain Ohm's law.” becomes “Explain Ohm's law to a first-year student using a 12 V battery and a 4 Ω resistor, in 3 steps.”</p>
+<p><b>Class link:</b> Tutorial Ch. 3 and Ch. 4, roles and clear inputs.</p></details>
+<details><summary>Principle 4: Give instances, i.e. examples</summary>
+<p><b>Explain:</b> Where possible, show the LLM samples of the output you want. This helps it understand your goal and gives more accurate results. This idea leads to one-shot and few-shot prompting (Unit 2.3).</p>
+<p><b>Example:</b> “Convert device names to lab codes. Lamp → LP-1. Fan → FN-2. Motor →” (the model copies the pattern and answers MT-3).</p>
+<p><b>Class link:</b> Tutorial Ch. 7, few-shot.</p></details>
+<details><summary>Principle 5: Try things out, i.e. experiment</summary>
+<p><b>Explain:</b> Prompt engineering cannot be done in one fixed way. Try different prompts, look at the results, and refine. What works for one LLM or one task may not work for another.</p>
+<p><b>Example:</b> Run prompt v1, notice the answer is too long, add “under 80 words”, run again as v2. Keep both in your Prompt Portfolio and note why v2 is better.</p>
+<p><b>Class link:</b> Every tutorial exercise, and your Prompt Portfolio.</p></details>
+<details><summary>Example and conclusion</summary>
+<p><b>Worked example:</b> v1 “Explain transistors.” → v2 “Explain what a transistor does to a first-year engineering student. Use exactly 3 bullet points, each with one real device example. Keep it under 80 words.” Each added phrase applies one principle.</p>
+<p><b>Conclusion:</b> Together the principles move a prompt from vague to precise: understand the task, word it precisely, add details, show examples, then test and refine. Because the process is recursive, the cycle repeats until the output meets the goal. Well-engineered prompts give more accurate, relevant and creative results, which is why the skill matters in communication, coding, writing and research.</p></details>
+<h3 style="margin-top:18px">Try writing it yourself</h3>
+<label for="myans">Explain the five principles in your own words (at least a few sentences). Claude will give you feedback on what you covered and what to add.</label>
+<textarea id="myans" style="min-height:140px" placeholder="Introduction… then the five principles with an example for each… then a conclusion."></textarea>
+<button class="run" id="fb2">Get feedback from Claude</button> <span class="pill">Model: Claude Haiku</span>
+<div class="resp" id="fbo" role="status"></div>
+</section>
+
+<section id="s5">
+<div class="tag">Quick check</div><h2>Three questions</h2>
+<div id="quiz"></div>
+</section>
+
+<section id="s6">
+<div class="tag">Exit ticket · whole class</div><h2>Which principle will you use most?</h2>
+<p class="sub" id="pollnote">Vote once (you can change it). Results update live for everyone who has this page open right now.</p>
+<div class="opts" id="po"></div><div id="pr"></div>
+</section>
+
+<div class="next"><b>Teacher notes.</b> Verify before presenting as fact: the 1990s and 2000s items in the history timeline could not be confirmed from the textbook alone. Unit 2.2 to 2.5 pages and the spreadsheet activities come in the next stages.</div>
+</main>
+<script>
+const MODEL="claude-haiku-5-5";
+const $=id=>document.getElementById(id);
+const liveErr=e=>{try{console.error(e)}catch(_){}const c=e&&e.code;const m={not_granted:'Claude was not allowed. Reload this page and click Allow when the permission box appears.',rate_limited:'Too many runs. Wait a moment, then try again.',not_declared:'This page is not set up for live Claude. Tell your teacher.',capability_disabled:'Live Claude is switched off for this page. Tell your teacher.',capability_removed:'Live Claude was removed from this page. Tell your teacher.',sampling_disabled:'Live Claude is turned off for your account or organisation.',session_expired:'Your session expired. Reload the page.',upstream_error:'Claude is busy. Try again in a moment.',empty_completion:'Claude sent an empty reply. Run it again.',refused:'Claude declined this prompt. Change the wording.',queue_overflow:'Too many requests are waiting. Try again shortly.',cancelled:'Stopped.',invalid_request:'The request was not accepted. Tell your teacher.'}[c];return (m||"Couldn't reach Claude. Try again.")+(c?' (code: '+c+')':(e&&e.message?' ('+String(e.message).slice(0,80)+')':''));};
+/* live Claude when available, otherwise paste mode (works in any phone browser) */
+const HARD=['not_granted','sampling_disabled','capability_disabled','capability_removed','not_declared'];
+let liveFn=null,liveDone=false,pasteOnly=false;
+(async()=>{try{if(typeof claude!=='undefined'&&claude&&claude.use)liveFn=await claude.use("sample");}catch(e){liveFn=null;}liveDone=true;})();
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const pasteQ=[];let pasteBusy=false;
+function pasteAsk(p,o){return new Promise((res,rej)=>{pasteQ.push({p,o,res,rej});pump();});}
+function pump(){if(pasteBusy||!pasteQ.length)return;pasteBusy=true;const {p,o,res,rej}=pasteQ.shift();
+const ov=document.createElement('div');ov.setAttribute('role','dialog');ov.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.55);display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:12px';
+const bx=document.createElement('div');bx.style.cssText='background:var(--sf,var(--surface,#fff));color:var(--ink,#16212b);border:2px solid var(--ink,#16212b);box-shadow:5px 5px 0 var(--ink,#16212b);max-width:660px;width:100%;padding:16px;margin:8px 0';
+const mkb=(t,bg)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='font:inherit;cursor:pointer;border:2px solid var(--ink,#16212b);padding:7px 14px;font-weight:700;margin:8px 8px 0 0;background:'+bg+';color:#16212b';return b;};
+const ta=()=>{const t=document.createElement('textarea');t.style.cssText='width:100%;min-height:120px;font:14px ui-monospace,Menlo,monospace;padding:8px;border:2px solid var(--ink,#16212b);background:var(--bg,#f2f5ef);color:var(--ink,#16212b)';return t;};
+const h=document.createElement('div');h.style.cssText='font-weight:800;font-size:1.15rem;margin-bottom:6px';h.textContent='Run this in your own Claude chat';
+const ex=document.createElement('p');ex.style.margin='0 0 8px';ex.textContent="Live Claude isn't available in this view. 1) Copy the prompt. 2) Open Claude (use Haiku if you can choose), paste it and send. 3) Paste Claude's reply below.";
+const pt=ta();pt.readOnly=true;pt.value=p;const cp=mkb('Copy prompt','#ffd84d');
+cp.onclick=async()=>{try{await navigator.clipboard.writeText(p);cp.textContent='Copied ✓';}catch(e){pt.focus();pt.select();cp.textContent='Press copy on your keyboard';}};
+const l2=document.createElement('div');l2.style.cssText='font-weight:700;margin-top:10px';l2.textContent="Claude's reply";
+const rt=ta();const ok=mkb('Use this reply','#ffd84d');const no=mkb('Cancel','transparent');const em=document.createElement('div');em.style.cssText='font-weight:700;min-height:1.2em';
+const done=()=>{ov.remove();pasteBusy=false;};
+ok.onclick=()=>{const t=rt.value.trim();if(!t){em.textContent='Paste the reply first.';return;}done();try{o&&o.onText&&o.onText({text:t,delta:t});}catch(e){}res({text:t,truncated:false});pump();};
+no.onclick=()=>{done();const q=pasteQ.splice(0);rej({code:'cancelled',message:'cancelled'});q.forEach(x=>x.rej({code:'cancelled',message:'cancelled'}));};
+bx.append(h,ex,pt,cp,l2,rt,em,ok,no);ov.appendChild(bx);document.body.appendChild(ov);setTimeout(()=>{try{rt.focus();}catch(e){}},50);}
+async function getSample(){return async(p,o)=>{
+ if(!liveDone)await Promise.race([(async()=>{while(!liveDone)await wait(100);})(),wait(8000)]);
+ if(liveFn&&!pasteOnly){try{return await liveFn(p,o);}catch(e){if(HARD.includes(e&&e.code))pasteOnly=true;else throw e;}}
+ return pasteAsk(p,o);};}
+const CARDS=[
+["What is a prompt?","A short piece of text (a question, instruction or example) given to a large language model. It sets the background, states the task and shapes the answer."],
+["What is prompt engineering?","Writing and refining prompts on purpose so the model is nudged toward the result you want, like guiding a gifted artist without drowning out their style."],
+["Why it matters: go further","Good prompts let a model do jobs it was not built for, such as long stories or music, by using its broad knowledge."],
+["Why it matters: precision","Careful wording steers a model toward relevant, accurate answers. This is vital in areas like reporting and research."],
+["Why it matters: creativity","Prompts can spark new ideas, unusual solutions and original work."],
+["Why it matters: access","Clear prompts and friendly interfaces let people without technical training use AI tools."]];
+CARDS.forEach(([t,a,c])=>{const b=document.createElement('button');b.className='flip';b.innerHTML='<b></b><span></span>';b.firstChild.textContent=t;b.lastChild.textContent='Tap to flip';
+let o=0;b.onclick=()=>{o=!o;b.classList.toggle('open',o);b.lastChild.textContent=o?a:'Tap to flip';};$('cards').appendChild(b);});
+const TL=[
+["1966 ELIZA","Weizenbaum's chatbot imitated a therapy chat by matching keywords and patterns in what the user typed. The book treats it as an early, basic form of prompting.",0],
+["1970s SHRDLU","Winograd's natural-language system followed typed commands to reason about blocks in a virtual world, showing that language can steer AI behaviour.",0],
+["1990s chatbots","Jabberwacky and ALICE stressed playful, open-ended conversation.",1],
+["2000s templates","Systems filled slots in predefined templates to generate stories, laying groundwork for structured prompting.",1],
+["2017 Transformer","The Transformer architecture led to very capable LLMs such as GPT-3, which made prompting powerful.",0],
+["2020s tuning","Models are tuned for specific tasks and adapt from the prompt itself. Few-shot learning and conditional generation give finer control.",0]];
+TL.forEach(([t,a,c,v],i)=>{const b=document.createElement('button');b.textContent=t;b.setAttribute('aria-pressed','false');
+b.onclick=()=>{[...$('tl').children].forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');
+$('tlp').innerHTML='';const p=document.createElement('div');p.textContent=a;$('tlp').appendChild(p);
+if(v){const w=document.createElement('div');w.className='warn';w.textContent='⚠ Verify before quoting: this part of the book could not be confirmed.';$('tlp').appendChild(w);}};$('tl').appendChild(b);});
+/* sorter */
+const TY=["Natural-language","System","Conditional"];
+const SI=[
+["Explain what a diode does in two sentences.",0,"A plain request written the way you would speak."],
+["You are a lab assistant. Always answer in bullet points and never give final numeric answers.",1,"Standing instructions that fix the behaviour and format."],
+["If the circuit has more than 3 resistors, show the equivalent-resistance steps; otherwise just give the answer.",2,"An 'If X, then Y' condition."],
+["Given a voltage of 12 V and a resistance of 4 Ω, generate the current.",2,"The book's 'Given A, generate B' pattern."],
+["What is the difference between AC and DC?",0,"A natural question in everyday language."],
+["Always reply as a patient teacher and use three numbered steps.",1,"Guidelines that shape every answer."]];
+let si=0,sc=0,sa=false;
+function showS(){sa=false;$('sq').textContent=`(${si+1}/${SI.length}) “${SI[si][0]}”`;$('sf').textContent='';$('sn').hidden=true;
+$('so').innerHTML='';TY.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=t;
+b.onclick=()=>{if(sa)return;sa=true;const ok=i===SI[si][1];if(ok)sc++;b.classList.add(ok?'right':'wrong');
+[...$('so').children][SI[si][1]].classList.add('right');$('sf').textContent=(ok?'✓ ':'✗ It is '+TY[SI[si][1]]+'. ')+SI[si][2];
+$('sn').hidden=false;$('sn').textContent=si<SI.length-1?'Next prompt':'Finish';};$('so').appendChild(b);});}
+let done=false;
+function nextS(){if(done){si=0;sc=0;done=false;showS();return;}if(si<SI.length-1){si++;showS();}else{gradeS();}}
+$('sn').onclick=nextS;
+function gradeS(){done=true;const p=Math.round(sc/SI.length*100);const g=p>=90?'A':p>=80?'B':p>=70?'C':p>=60?'D':'F';
+$('sq').textContent=`Your score: ${sc} / ${SI.length} (${p}%). Grade: ${g}`;$('so').innerHTML='';
+$('sf').textContent=p>=80?'Well done. You can tell the three types apart.':'Re-read the three cards above, then retry.';
+$('sn').hidden=false;$('sn').textContent='Retry quiz';}
+showS();
+/* live compare */
+let sample=null;
+async function runOne(p,box){const r=await sample(p,{model:MODEL,modelTier:"quick",cache:false,onText:({text})=>{box.textContent=text;}});box.textContent=r.text;}
+$('rn').onclick=async()=>{const b=$('rn');b.disabled=true;$('rf').textContent='Claude is thinking…';$('ra').textContent='';$('rb').textContent='';
+try{if(!sample)sample=await getSample();
+if(!sample){$('rf').textContent='Live Claude is not available here. Open this page from its claude.ai link while signed in.';return;}
+await Promise.all([runOne($('pa').value,$('ra')),runOne($('pb').value,$('rb'))]);$('rf').textContent='Compare: which reply could you use without editing?';}
+catch(e){$('rf').textContent=liveErr(e);}
+finally{b.disabled=false;}};
+/* quiz */
+const QZ=[
+["Which prompt type is built on 'If X, then Y'?",["Natural-language","System","Conditional"],2,"Conditional prompts use statements like “If X, then Y” or “Given A, generate B”."],
+["ELIZA (1966) is described as an early example of…",["a Transformer-based LLM","basic prompting through keyword and pattern matching","a template-based story generator"],1,"ELIZA matched keywords and patterns in what the user typed."],
+["Which is NOT one of the five working principles?",["Give details","Use as much technical jargon as possible","Try things out and experiment"],1,"The principle is to use straightforward language and avoid jargon."]];
+QZ.forEach(([q,o,a,c])=>{const d=document.createElement('div');const h=document.createElement('div');h.className='q';h.textContent=q;d.appendChild(h);
+const w=document.createElement('div');w.className='opts';const f=document.createElement('div');f.className='fb';let dn=false;
+o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=t;b.onclick=()=>{if(dn)return;
+if(i===a){dn=true;b.classList.add('right');f.textContent='✓ '+c;}else{b.classList.add('wrong');b.disabled=true;f.textContent='✗ Try again.';}};w.appendChild(b);});
+d.appendChild(w);d.appendChild(f);$('quiz').appendChild(d);});
+$('fb2').onclick=async()=>{const t=$('myans').value.trim();if(t.split(/\s+/).length<30){$('fbo').textContent='Write at least a few sentences first.';return;}
+const b=$('fb2');b.disabled=true;$('fbo').textContent='Claude is reviewing…';
+const p='You are a supportive tutor. A student was asked to explain how prompt engineering works and its five guiding principles (understand the task; precise and succinct wording; give details; give examples; experiment). Do not give a mark. Reply with: which of the five principles they covered well, which are missing or unclear, whether they gave examples and a conclusion, and one improvement tip. Keep it under 150 words.\n\n<answer>'+t+'</answer>';
+try{if(!sample)sample=await getSample();
+if(!sample){$('fbo').textContent='Live Claude is not available here. Open this page from its claude.ai link while signed in.';return;}
+const r=await sample(p,{model:MODEL,modelTier:"quick",cache:false,onText:({text})=>{$('fbo').textContent=text;}});$('fbo').textContent=r.text;}
+catch(e){$('fbo').textContent=liveErr(e);}
+finally{b.disabled=false;}};
+/* class poll */
+const PO=["Understand the task","Precise wording","Give details","Give examples","Experiment"];
+const votes={};let room=null,mine=-1;
+function drawPoll(){const t={};PO.forEach((_,i)=>t[i]=0);Object.values(votes).forEach(v=>{if(t[v]!==undefined)t[v]++;});
+const tot=Object.keys(votes).length||1;$('pr').innerHTML='';PO.forEach((p,i)=>{const r=document.createElement('div');r.className='bar';
+const l=document.createElement('span');l.style.minWidth='9.5em';l.textContent=p;const b=document.createElement('i');b.style.width=(t[i]/tot*60)+'%';
+const n=document.createElement('span');n.textContent=t[i];r.append(l,b,n);$('pr').appendChild(r);});}
+PO.forEach((p,i)=>{const b=document.createElement('button');b.className='opt';b.textContent=p;b.onclick=async()=>{mine=i;votes.me=i;drawPoll();
+try{if(room)await room.emit('poll21',{v:i});}catch(e){}};$('po').appendChild(b);});
+drawPoll();
+(async()=>{try{room=await claude.use("room");if(!room){$('pollnote').textContent='Vote to see your own tally. Live class results need the claude.ai link.';return;}
+room.on('poll21',m=>{if(m.isMe)return;votes[m.peer]=m.data&&m.data.v;drawPoll();});}catch(e){}})();
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prompt Gym: Prompt Engineering 101</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5ef;--grid:#d5e0d3;--surface:#fff;--ink:#16212b;--mute:#4c5b66;--blue:#1f5fd6;--hi:#ffd84d;--ok:#1f8f5a;--bad:#d23b41;--okbg:#dff3e7;--badbg:#fbe0e1;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10171d;--grid:#1c2830;--surface:#18222a;--ink:#eaf0f3;--mute:#9fb0ba;--blue:#7fb0ff;--ok:#52d196;--bad:#ff7b80;--okbg:#14382a;--badbg:#44191c}}
+:root[data-theme="dark"]{--bg:#10171d;--grid:#1c2830;--surface:#18222a;--ink:#eaf0f3;--mute:#9fb0ba;--blue:#7fb0ff;--ok:#52d196;--bad:#ff7b80;--okbg:#14382a;--badbg:#44191c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:840px;margin:0 auto;padding:20px 16px 60px}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.1;margin:0}
+h1{font-size:clamp(2.1rem,7vw,3.4rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.5rem;font-weight:800}h3{font-size:1.15rem;font-weight:800}
+.sub{color:var(--mute);max-width:62ch;margin:6px 0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.pill{background:var(--hi);color:#16212b;border:2px solid var(--ink);padding:2px 12px;font-weight:700}
+.pill.m{background:var(--surface);color:var(--ink)}
+.warn{display:none;background:var(--badbg);border:2px solid var(--bad);padding:10px;margin-top:14px}
+.chap{margin-top:36px;border-top:3px solid var(--ink);padding-top:12px}
+.chap .sub{margin-bottom:0}
+.ex{background:var(--surface);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--ink);padding:16px;margin-top:18px}
+.ex.pass{border-color:var(--ok);box-shadow:5px 5px 0 var(--ok)}
+.task{margin:6px 0 10px;padding:8px 12px;background:var(--bg);border-left:6px solid var(--hi)}
+label{display:block;font-weight:700;margin:8px 0 2px;font-size:.9rem;color:var(--mute)}
+textarea,.lock{width:100%;font-family:ui-monospace,Menlo,monospace;font-size:.92rem;padding:10px;border:2px solid var(--ink);background:var(--bg);color:var(--ink)}
+textarea{min-height:84px;resize:vertical}
+.lock{border-style:dashed;white-space:pre-wrap}
+button{font:inherit;cursor:pointer;color:#16212b}
+.run{margin-top:10px;border:2px solid var(--ink);background:var(--hi);font-weight:700;padding:8px 18px;box-shadow:3px 3px 0 var(--ink)}
+.run:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.run:disabled{opacity:.6;cursor:wait}
+.hint{margin-left:8px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);padding:6px 12px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.resp{margin-top:10px;padding:8px 12px;border:2px dashed var(--ink);white-space:pre-wrap;font-size:.93rem}
+.resp.ok{background:var(--okbg);border:2px solid var(--ok)}
+.resp.no{background:var(--badbg);border:2px solid var(--bad)}
+.resp small{display:block;font-weight:700;color:var(--mute);margin-bottom:2px}
+.msg{font-weight:700;margin-top:8px;min-height:1.5em}
+.note{margin-top:30px;color:var(--mute);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Prompt Gym</h1>
+<p class="sub">Prompt Engineering 101, hands on. These exercises follow Anthropic's interactive tutorial. Write a prompt, run it on Claude, and the reply turns green when it passes.</p>
+<div class="bar"><span class="pill" id="score" aria-live="polite">0 / 17 passed</span><span class="pill m">Model: Claude Haiku 5.5 (same for everyone)</span></div>
+<div class="warn" id="warn">Live Claude isn't available here. Open this page from its claude.ai link while signed in to your Claude account.</div>
+<div id="list"></div>
+<p class="note">Replies can vary a little between runs, so if a pass fails by a hair, run it again. System prompts here are sent as instructions placed before your message. Chapter 6 also has a second exercise (6.2) and Chapter 8 a Matterport exercise in the full tutorial sheet; 8.2 here is a class variant.</p>
+</main>
+<script>
+const MODEL="claude-haiku-5-5";
+const liveErr=e=>{try{console.error(e)}catch(_){}const c=e&&e.code;const m={not_granted:'Claude was not allowed. Reload this page and click Allow when the permission box appears.',rate_limited:'Too many runs. Wait a moment, then try again.',not_declared:'This page is not set up for live Claude. Tell your teacher.',capability_disabled:'Live Claude is switched off for this page. Tell your teacher.',capability_removed:'Live Claude was removed from this page. Tell your teacher.',sampling_disabled:'Live Claude is turned off for your account or organisation.',session_expired:'Your session expired. Reload the page.',upstream_error:'Claude is busy. Try again in a moment.',empty_completion:'Claude sent an empty reply. Run it again.',refused:'Claude declined this prompt. Change the wording.',queue_overflow:'Too many requests are waiting. Try again shortly.',cancelled:'Stopped.',invalid_request:'The request was not accepted. Tell your teacher.'}[c];return (m||"Couldn't reach Claude. Try again.")+(c?' (code: '+c+')':(e&&e.message?' ('+String(e.message).slice(0,80)+')':''));};
+/* live Claude when available, otherwise paste mode (works in any phone browser) */
+const HARD=['not_granted','sampling_disabled','capability_disabled','capability_removed','not_declared'];
+let liveFn=null,liveDone=false,pasteOnly=false;
+(async()=>{try{if(typeof claude!=='undefined'&&claude&&claude.use)liveFn=await claude.use("sample");}catch(e){liveFn=null;}liveDone=true;})();
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const pasteQ=[];let pasteBusy=false;
+function pasteAsk(p,o){return new Promise((res,rej)=>{pasteQ.push({p,o,res,rej});pump();});}
+function pump(){if(pasteBusy||!pasteQ.length)return;pasteBusy=true;const {p,o,res,rej}=pasteQ.shift();
+const ov=document.createElement('div');ov.setAttribute('role','dialog');ov.style.cssText='position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.55);display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:12px';
+const bx=document.createElement('div');bx.style.cssText='background:var(--sf,var(--surface,#fff));color:var(--ink,#16212b);border:2px solid var(--ink,#16212b);box-shadow:5px 5px 0 var(--ink,#16212b);max-width:660px;width:100%;padding:16px;margin:8px 0';
+const mkb=(t,bg)=>{const b=document.createElement('button');b.textContent=t;b.style.cssText='font:inherit;cursor:pointer;border:2px solid var(--ink,#16212b);padding:7px 14px;font-weight:700;margin:8px 8px 0 0;background:'+bg+';color:#16212b';return b;};
+const ta=()=>{const t=document.createElement('textarea');t.style.cssText='width:100%;min-height:120px;font:14px ui-monospace,Menlo,monospace;padding:8px;border:2px solid var(--ink,#16212b);background:var(--bg,#f2f5ef);color:var(--ink,#16212b)';return t;};
+const h=document.createElement('div');h.style.cssText='font-weight:800;font-size:1.15rem;margin-bottom:6px';h.textContent='Run this in your own Claude chat';
+const ex=document.createElement('p');ex.style.margin='0 0 8px';ex.textContent="Live Claude isn't available in this view. 1) Copy the prompt. 2) Open Claude (use Haiku if you can choose), paste it and send. 3) Paste Claude's reply below.";
+const pt=ta();pt.readOnly=true;pt.value=p;const cp=mkb('Copy prompt','#ffd84d');
+cp.onclick=async()=>{try{await navigator.clipboard.writeText(p);cp.textContent='Copied ✓';}catch(e){pt.focus();pt.select();cp.textContent='Press copy on your keyboard';}};
+const l2=document.createElement('div');l2.style.cssText='font-weight:700;margin-top:10px';l2.textContent="Claude's reply";
+const rt=ta();const ok=mkb('Use this reply','#ffd84d');const no=mkb('Cancel','transparent');const em=document.createElement('div');em.style.cssText='font-weight:700;min-height:1.2em';
+const done=()=>{ov.remove();pasteBusy=false;};
+ok.onclick=()=>{const t=rt.value.trim();if(!t){em.textContent='Paste the reply first.';return;}done();try{o&&o.onText&&o.onText({text:t,delta:t});}catch(e){}res({text:t,truncated:false});pump();};
+no.onclick=()=>{done();const q=pasteQ.splice(0);rej({code:'cancelled',message:'cancelled'});q.forEach(x=>x.rej({code:'cancelled',message:'cancelled'}));};
+bx.append(h,ex,pt,cp,l2,rt,em,ok,no);ov.appendChild(bx);document.body.appendChild(ov);setTimeout(()=>{try{rt.focus();}catch(e){}},50);}
+async function getSample(){return async(p,o)=>{
+ if(!liveDone)await Promise.race([(async()=>{while(!liveDone)await wait(100);})(),wait(8000)]);
+ if(liveFn&&!pasteOnly){try{return await liveFn(p,o);}catch(e){if(HARD.includes(e&&e.code))pasteOnly=true;else throw e;}}
+ return pasteAsk(p,o);};}
+const W=t=>t.trim().split(/\s+/).filter(Boolean).length;
+const EM=["Hi -- My Mixmaster4000 is producing a strange noise when I operate it. It also smells a bit smoky and plasticky, like burning electronics.  I need a replacement.","Can I use my Mixmaster 4000 to mix paint, or is it only meant for mixing food?","I HAVE BEEN WAITING 4 MONTHS FOR MY MONTHLY CHARGES TO END AFTER CANCELLING!!  WTF IS GOING ON???","How did I get here I am not good with computer.  Halp."];
+const EXP=["B","AD","C","D"];
+const emails=EM.map(e=>({EMAIL:e}));
+const MESSY="Hia its me i have a q about dogs jkaerjv {{QUESTION}} jklmvca tx it help me muhch much atx fst fst answer short short tx";
+const DOC="<document>\nDatasheet excerpt, regulator LM-X1: input voltage 7 to 35 V. Output 5 V, plus or minus 2%, up to 1.5 A. Operating temperature -40 to 85 C.\n</document>\n\nWhat is the maximum input voltage and the dropout voltage?";
+const CH={
+1:["Basic prompt structure","Prompts have roles. A system prompt sets standing rules; the user message is the task."],
+2:["Being clear and direct","Claude has no context beyond your words. Say what you want, and what you don't want."],
+3:["Assigning roles","A role changes tone, focus and sometimes accuracy."],
+4:["Separating data and instructions","Use {{variables}} for data and XML tags to fence it off from your instructions."],
+5:["Formatting output and speaking for Claude","Tell Claude the exact output shape. In the tutorial you start Claude's reply for it; here you will instruct how it must begin."],
+6:["Thinking step by step","Let Claude think out loud before it answers. Thinking only counts when it is written out."],
+7:["Using examples (few-shot)","Show input and output pairs so Claude copies the pattern and format."],
+8:["Avoiding hallucinations","Give Claude an out, and make it quote evidence before answering."],
+9:["Complex prompts","Combine role, tags, thinking and output format in one prompt."]};
+const EX=[
+{ch:1,id:"1.1",t:"Counting to three",task:"Write a prompt that gets Claude to count to three.",hint:"Just ask clearly. The checker looks for 1, 2 and 3.",u:{text:""},ok:R=>/1/.test(R[0])&&/2/.test(R[0])&&/3/.test(R[0])},
+{ch:1,id:"1.2",t:"System prompt",task:"Edit the system prompt so Claude answers like a 3-year-old child.",hint:"Ask for it in plain words. The checker looks for 'soo' or 'giggles'.",s:"",u:{text:"How big is the sky?",lock:1},ok:R=>/soo|giggles/i.test(R[0])},
+{ch:2,id:"2.1",t:"Spanish",task:"Edit the system prompt so Claude answers in Spanish.",hint:"Ask for Spanish as you would ask a person. The checker looks for 'hola'.",s:"",u:{text:"Hello Claude, how are you?",lock:1},ok:R=>/hola/i.test(R[0])},
+{ch:2,id:"2.2",t:"One player only",task:"Edit the question so Claude replies with only the name of one specific player: no other words or punctuation.",hint:"How would you ask a person to reply with only the name? Exact match: Michael Jordan.",u:{text:"Who is the best basketball player of all time?"},ok:R=>R[0].trim()==="Michael Jordan"},
+{ch:2,id:"2.3",t:"Write a story",task:"Edit the prompt so Claude writes a story of 800 words or more.",hint:"Models count words poorly, so overshoot. This one can take a while.",u:{text:"Can you write me a story?"},ok:R=>W(R[0])>=800},
+{ch:3,id:"3.1",t:"Math correction",task:"Give Claude a role in the system prompt so it notices that the algebra below is wrong.",hint:"Pick a role that suits careful maths. The checker looks for 'incorrect' or 'not correct'.",s:"",u:{text:"Is this equation solved correctly below?\n\n2x - 3 = 9\n2x = 6\nx = 3",lock:1},ok:R=>/incorrect|not correct/i.test(R[0])},
+{ch:4,id:"4.1",t:"Haiku topic",task:"Write a prompt template using {{TOPIC}} that makes Claude write a haiku about the topic. Test input: Pigs.",hint:"Use the exact text {{TOPIC}} where the topic should go.",tpl:1,u:{text:""},inp:[{TOPIC:"Pigs"}],need:c=>c.includes("{{TOPIC}}")?"":"Your template must contain {{TOPIC}}.",ok:R=>/pig/i.test(R[0])&&R[0].trim().split("\n").length>=3},
+{ch:4,id:"4.2",t:"Dog question with typos",task:"Fix the messy template by adding XML tags around the variable. Change nothing else. Test input: 'ar cn brown?'",hint:"What happens if {{QUESTION}} sits inside tags such as <question>…</question>? The checker looks for 'brown'.",tpl:1,u:{text:MESSY},inp:[{QUESTION:"ar cn brown?"}],need:c=>/<(\w+)>[\s\S]*\{\{QUESTION\}\}[\s\S]*<\/\1>/.test(c)?"":"Wrap {{QUESTION}} in XML tags.",ok:R=>/brown/i.test(R[0])},
+{ch:4,id:"4.3",t:"Dog question, no tags",task:"Fix the same template WITHOUT tags, by deleting only one or two words or pieces of text.",hint:"Remove the least sensible bits one at a time. Keep {{QUESTION}}.",tpl:1,u:{text:MESSY},inp:[{QUESTION:"ar cn brown?"}],need:c=>c.includes("<")?"No tags allowed here.":!c.includes("{{QUESTION}}")?"Keep {{QUESTION}} in the template.":c.length>=MESSY.length?"Delete something from the template.":"",ok:R=>/brown/i.test(R[0])},
+{ch:5,id:"5.1",t:"Steph Curry GOAT",task:"Edit the prompt so Claude argues for Stephen Curry as the best player. Tell Claude exactly how its reply must begin.",hint:"Give it the opening words, e.g. 'Begin your reply with: Stephen Curry is the best because'. The checker looks for 'Warrior'.",u:{text:"Who is the best basketball player of all time? Please choose one specific player."},ok:R=>/Warrior/i.test(R[0])},
+{ch:5,id:"5.2",t:"Two haikus",task:"Edit the template so Claude writes two haikus about {{ANIMAL}}, each inside its own <haiku> tags. Test input: cats.",hint:"First ask for two, then fix the formatting.",tpl:1,u:{text:"Please write a haiku about {{ANIMAL}}. Put it in <haiku> tags."},inp:[{ANIMAL:"cats"}],ok:R=>(R[0].match(/<haiku>[\s\S]*?<\/haiku>/g)||[]).length>=2&&R[0].trim().split("\n").length>5},
+{ch:5,id:"5.3",t:"Two haikus, two animals",task:"Edit the template to write two haikus about two different animals, using {{ANIMAL1}} and {{ANIMAL2}}. Test inputs: Cat and Dog.",hint:"Break it into steps: add the second variable, then ask for two haikus.",tpl:1,u:{text:"Please write a haiku about {{ANIMAL1}}. Put it in <haiku> tags."},inp:[{ANIMAL1:"Cat",ANIMAL2:"Dog"}],need:c=>c.includes("{{ANIMAL1}}")&&c.includes("{{ANIMAL2}}")?"":"Use both {{ANIMAL1}} and {{ANIMAL2}}.",ok:R=>(R[0].match(/<haiku>/g)||[]).length>=2&&/cat/i.test(R[0])&&/dog/i.test(R[0])},
+{ch:6,id:"6.1",t:"Classifying emails",task:"Write a template that classifies each email into (A) Pre-sale question, (B) Broken or defective item, (C) Billing question, (D) Other (please explain). Use chain of thought. The reply must include the letter in parentheses. Four emails will be tested.",hint:"List the four categories in the prompt, let Claude reason first, and keep {{EMAIL}}. Email 2 may be A or D. Bonus: why is email 2 the trickiest?",tpl:1,u:{text:"Please classify this email as either green or blue: {{EMAIL}}"},inp:emails,need:c=>c.includes("{{EMAIL}}")?"":"Keep {{EMAIL}} in the template.",ok:R=>R.every((t,i)=>{const m=t.match(/\(([A-D])\)/);return m&&EXP[i].includes(m[1])})},
+{ch:7,id:"7.1",t:"Email formatting via examples",task:"Use few-shot examples so each reply ENDS with just the category letter (A to D). Same four emails and categories as 6.1.",hint:"Write 2 or more example emails with answers in the exact format you want. Keep the categories and {{EMAIL}}.",tpl:1,u:{text:"Please classify this email as either green or blue: {{EMAIL}}"},inp:emails,need:c=>c.includes("{{EMAIL}}")?"":"Keep {{EMAIL}} in the template.",ok:R=>R.every((t,i)=>EXP[i].includes(t.trim().slice(-1)))},
+{ch:8,id:"8.1",t:"Beyoncé hallucination",task:"Edit the prompt so Claude doesn't invent an answer. (Renaissance is her seventh album, so there is no eighth.)",hint:"What should Claude do if it doesn't know? The checker wants 'I do not', 'I don't' or 'Unfortunately', and no '2022'.",u:{text:"In what year did star performer Beyoncé release her eighth studio album?"},ok:R=>/I do not|I don't|Unfortunately/i.test(R[0])&&!/2022/.test(R[0])},
+{ch:8,id:"8.2",t:"Datasheet check (class variant)",task:"Edit the prompt so Claude quotes the datasheet first, then answers only from it. The datasheet does not give the dropout voltage.",hint:"Ask for relevant quotes first, then an answer that says when something isn't in the document.",u:{text:DOC},ok:R=>/35/.test(R[0])&&/(not|n't|no)\s+(\w+\s+){0,4}(stated|specified|provided|mentioned|given|listed|includ|available|found)/i.test(R[0])},
+{ch:9,id:"9",t:"Codebot (mini)",task:"Build a template with {{CODE}} for a coding teacher. Claude should think in <thinking> tags, then give a guiding hint in <hint> tags WITHOUT writing corrected code. Test code: def average(xs): return sum(xs) / len(xs) + 1",hint:"Combine a role, a rule (hint only), thinking first, and an exact output format.",tpl:1,u:{text:""},inp:[{CODE:"def average(xs): return sum(xs) / len(xs) + 1"}],need:c=>c.includes("{{CODE}}")?"":"Keep {{CODE}} in the template.",ok:R=>{const m=R[0].match(/<hint>([\s\S]+?)<\/hint>/);return !!m&&/<thinking>/.test(R[0])&&/\+\s*1/.test(m[1])&&!/```/.test(R[0])}}
+];
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const done=new Set();let sample=null;
+const list=document.getElementById('list');let last=0;
+EX.forEach((e,i)=>{
+ if(e.ch!==last){last=e.ch;const c=document.createElement('div');c.className='chap';c.innerHTML=`<h2>Chapter ${e.ch}: ${CH[e.ch][0]}</h2><p class="sub">${esc(CH[e.ch][1])}</p>`;list.appendChild(c);}
+ const d=document.createElement('section');d.className='ex';
+ d.innerHTML=`<h3>Exercise ${e.id}: ${esc(e.t)}</h3><div class="task">${esc(e.task)}</div>
+ ${e.s!==undefined?`<label for="s${i}">System prompt (edit this)</label><textarea id="s${i}" placeholder="Write the system prompt…"></textarea>`:''}
+ <label for="u${i}">${e.tpl?'Prompt template (edit this)':e.u.lock?'User message (fixed)':'Your prompt (edit this)'}</label>
+ ${e.u.lock?`<div class="lock" id="u${i}">${esc(e.u.text)}</div>`:`<textarea id="u${i}" placeholder="Write your prompt…"></textarea>`}
+ <div><button class="run">Run on Claude</button><button class="hint">Hint</button></div>
+ <div class="msg" role="status"></div><div class="out"></div>`;
+ const ta=d.querySelector('textarea:last-of-type');
+ if(!e.u.lock)document.getElementById||0;
+ const uEl=d.querySelector('#u'+i),sEl=d.querySelector('#s'+i);
+ if(!e.u.lock)uEl.value=e.u.text;
+ const run=d.querySelector('.run'),msg=d.querySelector('.msg'),out=d.querySelector('.out');
+ d.querySelector('.hint').onclick=()=>{msg.textContent="Hint: "+e.hint;};
+ run.onclick=async()=>{
+  const u=e.u.lock?e.u.text:uEl.value,s=sEl?sEl.value.trim():"";
+  if(!u.trim()||(sEl&&!s)){msg.textContent="Fill in the box first.";return;}
+  const bad=e.need?e.need(u):"";if(bad){msg.textContent=bad;return;}
+  run.disabled=true;out.innerHTML='';msg.textContent="Claude is thinking…";
+  try{
+   if(!sample)sample=await getSample();
+   if(!sample){document.getElementById('warn').style.display='block';msg.textContent="";return;}
+   const inp=e.inp||[{}],R=[];
+   for(let k=0;k<inp.length;k++){
+    const box=document.createElement('div');box.className='resp';
+    box.innerHTML=`<small>${inp.length>1?'Test '+(k+1)+' of '+inp.length:'Claude\'s reply'}</small><span></span>`;out.appendChild(box);
+    let p=u;for(const v in inp[k])p=p.split("{{"+v+"}}").join(inp[k][v]);
+    if(s)p=s+"\n\n"+p;
+    const r=await sample(p,{model:MODEL,modelTier:"quick",cache:false,onText:({text})=>{box.lastChild.textContent=text;}});
+    box.lastChild.textContent=r.text;R.push(r.text);
+   }
+   const pass=e.ok(R);
+   [...out.children].forEach(b=>b.classList.add(pass?'ok':'no'));
+   msg.textContent=pass?"✓ Passed. Your prompt did the job.":"✗ Not yet. Read the reply and ask what your prompt left open.";
+   if(pass){d.classList.add('pass');done.add(i);}
+   document.getElementById('score').textContent=done.size+" / "+EX.length+" passed";
+  }catch(err){msg.textContent=liveErr(err);}
+  finally{run.disabled=false;}
+ };
+ list.appendChild(d);
+});
+</script>
+</body>
+</html>
